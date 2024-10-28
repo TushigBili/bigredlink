@@ -85,6 +85,36 @@ def manage_transactions(DB, user):
                 DB.update_transaction(transaction['_id'], False)
                 print("Transaction denied.")
 
+def handle_money_operations(DB, user):
+    print("\nMoney Management Options:")
+    print("1) Deposit Money")
+    print("2) Withdraw Money")
+    option = input("Choose an option (1 or 2): ")
+
+    if option == "1":
+        try:
+            amount = float(input("Enter the amount to deposit: "))
+            if amount > 0:
+                success, message = DB.deposit_money(user['_id'], amount)
+                print(message)  # Displays success message or error from the deposit operation
+            else:
+                print("Amount must be positive.")
+        except ValueError:
+            print("Invalid amount entered. Please enter a valid number.")
+    elif option == "2":
+        try:
+            amount = float(input("Enter the amount to withdraw: "))
+            if amount > 0:
+                success, message = DB.withdraw_money(user['_id'], amount)
+                print(message)  # Displays success message or error from the withdrawal operation
+            else:
+                print("Amount must be positive.")
+        except ValueError:
+            print("Invalid amount entered. Please enter a valid number.")
+    else:
+        print("Invalid option selected.")
+
+
 def main():
     DB = DatabaseDriver()
     action = input("Do you want to (1) register, (2) login, or (3) exit? (Enter 1, 2, or 3): ")
@@ -103,8 +133,10 @@ def main():
             print("1) Manage Data Sharing")
             print("2) Send Money")
             print("3) Manage Transactions")
-            print("4) Log Out")
-            choice = input("Select an action (1, 2, 3, or 4): ")
+            print("4) Add or Withdraw Funds")
+            print("5) Log Out")
+            choice = input("Select an action (1, 2, 3, 4, or 5): ")
+            
             if choice == "1":
                 select_data_sharing(DB, user)
             elif choice == "2":
@@ -112,6 +144,8 @@ def main():
             elif choice == "3":
                 manage_transactions(DB, user)
             elif choice == "4":
+                handle_money_operations(DB, user)
+            elif choice == "5":
                 print("Logging out.")
                 break
             else:

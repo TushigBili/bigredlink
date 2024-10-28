@@ -114,6 +114,30 @@ class DatabaseDriver:
             if not sender:
                 print("Sender not found.")
         return False
+    
+    def deposit_money(self, user_id, amount):
+        """Deposits a specified amount to the user's balance."""
+        if amount > 0:
+            current_balance = self.get_user_balance(user_id)
+            new_balance = current_balance + amount
+            self.update_user_balance(user_id, new_balance)
+            return True, f"Successfully deposited ${amount:.2f}. New balance: ${new_balance:.2f}."
+        else:
+            return False, "Deposit amount must be positive."
+
+    def withdraw_money(self, user_id, amount):
+        """Withdraws a specified amount from the user's balance if sufficient funds are available."""
+        if amount > 0:
+            current_balance = self.get_user_balance(user_id)
+            if current_balance >= amount:
+                new_balance = current_balance - amount
+                self.update_user_balance(user_id, new_balance)
+                return True, f"Successfully withdrew ${amount:.2f}. Remaining balance: ${new_balance:.2f}."
+            else:
+                return False, "Insufficient funds."
+        else:
+            return False, "Withdrawal amount must be positive."
+
 
 
 DatabaseDriver = singleton(DatabaseDriver)
