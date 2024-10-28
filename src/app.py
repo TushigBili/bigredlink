@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import db
 import getpass
 
@@ -7,13 +7,42 @@ app = Flask(__name__)
 DB = db.DatabaseDriver()
 
 @app.route("/")
+def welcome():
+    return '''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome</title>
+        <style>
+            body {
+                background-color: white;
+                color: black;
+                font-size: 24px;
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        Welcome to Big Red Link
+    </body>
+    </html>
+    '''
+
+
 @app.route("/api/users/")
 def get_users():
     """
     Endpoint for getting all users.
     """
     users = DB.get_all_users()
-    return json.dumps({"users": users}), 200
+    return jsonify({"users": users}), 200
 
 @app.route("/api/users/", methods=["POST"])
 def create_user():
