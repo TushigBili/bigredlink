@@ -30,18 +30,19 @@ class DatabaseDriver:
             return user
         return None
 
-    def insert_user(self, name, username, password):
-        """ Inserts a new user with a hashed password into the users collection and returns the user object. """
+    def insert_user(self, name, username, password, initial_balance=0):
+        """ Inserts a new user with a hashed password into the users collection """
         password_hash = generate_password_hash(password)
         user = {
             'name': name,
             'username': username,
             'password': password_hash,
-            'balance': 0  # Starting balance
+            'balance': initial_balance  # Use the initial balance provided
         }
         
         self.users.insert_one(user)
         return self.users.find_one({'username': username}, {'password': 0})  # Return user without password
+
 
     def get_all_users(self):
         """Returns all users, excluding passwords and MongoDB ObjectIds."""
@@ -88,5 +89,31 @@ class DatabaseDriver:
     def get_user_transactions(self, user_id):
         """Retrieves all transactions involving a specific user."""
         return list(self.transactions.find({'$or': [{'sender_id': user_id}, {'receiver_id': user_id}]}))
+    
+    def transfer_funds(self, sender_id, receiver_username, amount):
+        """Transfers funds from one user to another if the sender has sufficient balance."""
+        sender = self.get_user_by_id(sender_id)
+        receiver = self.users.find_one({'username': receiver_username})
+    
+        if sender and receiver:
+            if sender['balance'] >= amount:
+                # Perform the transaction
+                new_sender_balance = sender['balance'] - amount
+                new_receiver_balance = receiver['balance'] + amount
+                self.update_user_balance(sender_id, new_sender_balance)
+                self.update_user_balance(receiver['_id'], new_receiver_balance)
+            
+                # Log the transaction
+                self.insert_transaction(sender_id, receiver['_id'], amount, "Transfer to " + receiver_username, True)
+                return True
+            else:
+                print("Insufficient funds.")
+        else:
+            if not receiver:
+                print("Receiver not found.")
+            if not sender:
+                print("Sender not found.")
+        return False
+
 
 DatabaseDriver = singleton(DatabaseDriver)
