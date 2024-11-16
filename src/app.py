@@ -1,40 +1,28 @@
 import json
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import db
 import getpass
+from flask_cors import CORS
+
+
 
 app = Flask(__name__)
+CORS(app)
 DB = db.DatabaseDriver()
 
-@app.route("/")
-def welcome():
-    return '''
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome</title>
-        <style>
-            body {
-                background-color: white;
-                color: black;
-                font-size: 24px;
-                font-family: Arial, sans-serif;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-            }
-        </style>
-    </head>
-    <body>
-        Welcome to Big Red Link
-    </body>
-    </html>
-    '''
+@app.route('/')
+def home():
+    return render_template('index.html')
 
+@app.route('/api/login', methods=['POST'])
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    user = DB.authenticate_user(username, password)
+    if user:
+        return jsonify({"message": "Login successful", "user_id": str(user['_id'])}), 200
+    else:
+        return jsonify({"error": "Invalid username or password"}), 401
 
 @app.route("/api/users/")
 def get_users():
@@ -46,18 +34,21 @@ def get_users():
 
 @app.route("/api/users/", methods=["POST"])
 def create_user():
-    """
-    Endpoint for creating a user.
-    """
-    body = request.get_json()
-    if "name" not in body or "username" not in body:
-        return json.dumps({"error": "Name and username are required"}), 400
-    name = body['name']
-    username = body['username']
-    balance = body.get("balance", 0)
-    user_id = DB.insert_user(name, username, balance)
-    user = DB.get_user_by_id(user_id)
-    return json.dumps(user), 201
+    """Endpoint for creating a user."""
+    try:
+        body = request.get_json()
+        if not all(key in body for key in ['name', 'username', 'password']):
+            return jsonify({"error": "Name, username, and password are required"}), 400
+        name = body['name']
+        username = body['username']
+        password = body['password']
+        balance = body.get("balance", 0)
+        user_id = DB.insert_user(name, username, password, balance)
+        return jsonify({"message": "Registration successful", "user_id": user_id}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 @app.route("/api/users/<user_id>/", methods=["GET", "DELETE"])
 def manage_user(user_id):
@@ -81,21 +72,34 @@ def send_money():
     Endpoint for sending money from one user to another.
     """
     body = request.get_json()
-    receiver_id = body.get("receiver_id")
     sender_id = body.get("sender_id")
+    receiver_username = body.get("receiver_username")
     amount = body.get("amount")
 
-    if not all([receiver_id, sender_id, amount]):
-        return json.dumps({"error": "Missing required fields"}), 400
+    if not all([sender_id, receiver_username, amount]):
+        return jsonify({"error": "Missing required fields"}), 400
+
+    receiver = DB.get_user_by_username(receiver_username)
+    if not receiver:
+        return jsonify({"error": "Receiver not found"}), 404
 
     sender_balance = DB.get_user_balance(sender_id)
-    if amount > sender_balance:
-        return json.dumps({"error": "Cannot overdraw balance"}), 400
+    if sender_balance is None:
+        return jsonify({"error": "Sender not found"}), 404
 
+    if amount > sender_balance:
+        return jsonify({"error": "Cannot overdraw balance"}), 400
+
+    # Update balances
     DB.update_user_balance(sender_id, sender_balance - amount)
-    receiver_balance = DB.get_user_balance(receiver_id)
-    DB.update_user_balance(receiver_id, receiver_balance + amount)
-    return json.dumps({"success": True, "sender_id": sender_id, "receiver_id": receiver_id, "amount": amount}), 200
+    receiver_balance = DB.get_user_balance(receiver["_id"])
+    DB.update_user_balance(receiver["_id"], receiver_balance + amount)
+
+    # Insert the transaction
+    DB.insert_transaction(sender_id, receiver["_id"], amount, "Payment", True)
+
+    return jsonify({"success": True, "sender_id": sender_id, "receiver_id": str(receiver["_id"]), "amount": amount}), 200
+
 
 @app.route("/api/transactions/", methods=["POST"])
 def create_transaction():
@@ -134,6 +138,69 @@ def accept_deny_payment_request(transx_id):
     DB.update_transaction(transx_id, accepted)
     transaction = DB.get_transaction_by_id(transx_id)
     return json.dumps(transaction), 200
+
+@app.route('/api/balance/<user_id>', methods=['GET'])
+def get_balance(user_id):
+    balance = DB.get_user_balance(user_id)
+    if balance is not None:
+        return jsonify({'balance': balance}), 200
+    else:
+        return jsonify({'error': 'User not found'}), 404
+
+@app.route("/api/transactions/<user_id>", methods=["GET"])
+def get_user_transactions(user_id):
+    """
+    Endpoint for getting all transactions for a specific user.
+    """
+    try:
+        transactions = DB.get_user_transactions(user_id)
+        if transactions:
+            return jsonify({"transactions": transactions}), 200
+        else:
+            return jsonify({"error": "No transactions found"}), 404
+    except Exception as e:
+        print(f"Error fetching transactions: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/deposit/', methods=['POST'])
+def deposit():
+    """Endpoint for depositing money to a user's account."""
+    body = request.get_json()
+    user_id = body.get("user_id")
+    amount = body.get("amount")
+
+    if not all([user_id, amount]):
+        return jsonify({"error": "User ID and amount are required"}), 400
+
+    if amount <= 0:
+        return jsonify({"error": "Deposit amount must be greater than zero"}), 400
+
+    success, message = DB.deposit_money(user_id, amount)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+
+
+@app.route('/api/withdraw/', methods=['POST'])
+def withdraw():
+    """Endpoint for withdrawing money from a user's account."""
+    body = request.get_json()
+    user_id = body.get("user_id")
+    amount = body.get("amount")
+
+    if not all([user_id, amount]):
+        return jsonify({"error": "User ID and amount are required"}), 400
+
+    if amount <= 0:
+        return jsonify({"error": "Withdraw amount must be greater than zero"}), 400
+
+    success, message = DB.withdraw_money(user_id, amount)
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)

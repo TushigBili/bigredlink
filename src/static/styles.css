@@ -1,0 +1,21 @@
+body {
+    background: url('/static/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#loginContainer {
+    max-width: 400px;
+    margin: auto;
+    padding-top: 100px;
+}
+
+.login-box {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}

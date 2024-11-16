@@ -1,6 +1,8 @@
 import datetime
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
+from bson import ObjectId
+
 
 def singleton(cls):
     instances = {}
@@ -31,7 +33,11 @@ class DatabaseDriver:
         return None
 
     def insert_user(self, name, username, password, initial_balance=0):
-        """ Inserts a new user with a hashed password into the users collection """
+        """Inserts a new user with a hashed password into the users collection"""
+        # Ensure password is a string
+        if not isinstance(password, str):
+            password = str(password)
+
         password_hash = generate_password_hash(password)
         user = {
             'name': name,
@@ -39,9 +45,11 @@ class DatabaseDriver:
             'password': password_hash,
             'balance': initial_balance  # Use the initial balance provided
         }
-        
-        self.users.insert_one(user)
-        return self.users.find_one({'username': username}, {'password': 0})  # Return user without password
+
+        result = self.users.insert_one(user)
+        return str(result.inserted_id)  # Return the ObjectId as a string
+
+
 
 
     def get_all_users(self):
@@ -50,19 +58,28 @@ class DatabaseDriver:
 
     def get_user_by_id(self, user_id):
         """Retrieves a single user by MongoDB ObjectId, excluding the password."""
-        return self.users.find_one({'_id': user_id}, {'_id': 0, 'password': 0})
+        user_id = ObjectId(user_id)
+        return self.users.find_one({'_id': user_id}, {'password': 0})
+    
+    def get_user_by_username(self, username):
+        """Retrieve a user by their username."""
+        return self.users.find_one({'username': username})
+
 
     def delete_user_by_id(self, user_id):
         """Deletes a user from the users collection by MongoDB ObjectId."""
+        user_id = ObjectId(user_id)
         return self.users.delete_one({'_id': user_id})
 
     def get_user_balance(self, user_id):
         """Retrieves the balance for a specified user."""
+        user_id = ObjectId(user_id)
         user = self.users.find_one({'_id': user_id}, {'balance': 1, '_id': 0})
         return user['balance'] if user else None
 
     def update_user_balance(self, user_id, new_balance):
         """Updates the balance of a specific user."""
+        user_id = ObjectId(user_id)
         return self.users.update_one({'_id': user_id}, {'$set': {'balance': new_balance}})
 
     def insert_transaction(self, sender_id, receiver_id, amount, message, accepted):
@@ -86,9 +103,16 @@ class DatabaseDriver:
         """Updates the acceptance status of a transaction."""
         return self.transactions.update_one({'_id': transaction_id}, {'$set': {'accepted': accepted}})
 
+
     def get_user_transactions(self, user_id):
         """Retrieves all transactions involving a specific user."""
-        return list(self.transactions.find({'$or': [{'sender_id': user_id}, {'receiver_id': user_id}]}))
+        try:
+            user_id = ObjectId(user_id)  # Ensure user_id is of type ObjectId
+            return list(self.transactions.find({'$or': [{'sender_id': user_id}, {'receiver_id': user_id}]}))
+        except Exception as e:
+            print(f"Error fetching transactions: {str(e)}")
+            return []
+
     
     def transfer_funds(self, sender_id, receiver_username, amount):
         """Transfers funds from one user to another if the sender has sufficient balance."""
@@ -117,6 +141,7 @@ class DatabaseDriver:
     
     def deposit_money(self, user_id, amount):
         """Deposits a specified amount to the user's balance."""
+        user_id = ObjectId(user_id)
         if amount > 0:
             current_balance = self.get_user_balance(user_id)
             new_balance = current_balance + amount
@@ -127,6 +152,7 @@ class DatabaseDriver:
 
     def withdraw_money(self, user_id, amount):
         """Withdraws a specified amount from the user's balance if sufficient funds are available."""
+        user_id = ObjectId(user_id)
         if amount > 0:
             current_balance = self.get_user_balance(user_id)
             if current_balance >= amount:
@@ -137,6 +163,7 @@ class DatabaseDriver:
                 return False, "Insufficient funds."
         else:
             return False, "Withdrawal amount must be positive."
+
 
 
 
