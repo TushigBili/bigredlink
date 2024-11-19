@@ -1,21 +1,73 @@
+/* Fintech-Themed Styling */
 body {
-    background: url('/static/background.jpg') no-repeat center center fixed;
+    background: url('/static/background.png') no-repeat center center fixed;
     background-size: cover;
     height: 100vh;
+    margin: 0;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: 'Open Sans', sans-serif;
+    color: #ffffff;
 }
 
-#loginContainer {
-    max-width: 400px;
-    margin: auto;
-    padding-top: 100px;
+#userForms {
+    width: 400px; /* Control width for a good visual spread */
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.6); /* Make the background slightly transparent for style */
 }
 
-.login-box {
-    background: rgba(255, 255, 255, 0.85);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+#userForms h1 {
+    color: #00ffff; /* Accent color for fintech branding */
+}
+
+.form-label {
+    font-weight: bold;
+    color: #ffffff; /* Keep labels white for visibility */
+}
+
+.btn-primary {
+    background-color: #00b3b3; /* Turquoise button color */
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #008080; /* Slightly darker shade on hover */
+}
+
+.btn-secondary {
+    background-color: #007070; /* Darker secondary button */
+    border: none;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #005555; /* Even darker for hover */
+}
+
+#cft-logo {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 80px;
+    height: auto;
+    z-index: 1000;
+}
+
+/* Input fields */
+.form-control {
+    background: rgba(255, 255, 255, 0.8);
+    color: #003366;
+    border-radius: 5px;
+}
+
+/* Button hover effect */
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }

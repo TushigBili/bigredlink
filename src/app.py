@@ -6,7 +6,7 @@ from flask_cors import CORS
 
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 DB = db.DatabaseDriver()
 
@@ -204,3 +204,4 @@ def withdraw():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
+
