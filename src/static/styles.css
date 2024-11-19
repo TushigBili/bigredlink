@@ -1,6 +1,6 @@
 /* Fintech-Themed Styling */
 body {
-    background: url('/static/background.png') no-repeat center center fixed;
+    background: white;
     background-size: cover;
     height: 100vh;
     margin: 0;
@@ -9,52 +9,51 @@ body {
     align-items: center;
     justify-content: center;
     font-family: 'Open Sans', sans-serif;
-    color: #ffffff;
+    color: #950e0e;
 }
 
 #userForms {
     width: 400px; /* Control width for a good visual spread */
     padding: 40px;
     border-radius: 10px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-    background: rgba(0, 0, 0, 0.6); /* Make the background slightly transparent for style */
+    
 }
 
 #userForms h1 {
-    color: #00ffff; /* Accent color for fintech branding */
+    color: #871515; /* Accent color for fintech branding */
 }
 
 .form-label {
     font-weight: bold;
-    color: #ffffff; /* Keep labels white for visibility */
+    color: #871515; /* Keep labels white for visibility */
 }
 
 .btn-primary {
-    background-color: #00b3b3; /* Turquoise button color */
+    background-color: #7d1313; /* Turquoise button color */
     border: none;
     transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-    background-color: #008080; /* Slightly darker shade on hover */
+    background-color: #000000; /* Slightly darker shade on hover */
 }
 
 .btn-secondary {
-    background-color: #007070; /* Darker secondary button */
+    background-color: #7d1313; /* Darker secondary button */
     border: none;
     color: #ffffff;
     transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-    background-color: #005555; /* Even darker for hover */
+    background-color: #000000; /* Even darker for hover */
 }
 
 #cft-logo {
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 80px;
+    width: 180px;
     height: auto;
     z-index: 1000;
 }
