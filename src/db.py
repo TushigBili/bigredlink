@@ -32,7 +32,7 @@ class DatabaseDriver:
             return user
         return None
 
-    def insert_user(self, name, username, password, initial_balance=0):
+    def insert_user(self, first_name, last_name, username, password, initial_balance=0):
         """Inserts a new user with a hashed password into the users collection"""
         # Ensure password is a string
         if not isinstance(password, str):
@@ -40,7 +40,8 @@ class DatabaseDriver:
 
         password_hash = generate_password_hash(password)
         user = {
-            'name': name,
+            'first_name': first_name,
+            'last_name': last_name,
             'username': username,
             'password': password_hash,
             'balance': initial_balance  # Use the initial balance provided
@@ -48,6 +49,7 @@ class DatabaseDriver:
 
         result = self.users.insert_one(user)
         return str(result.inserted_id)  # Return the ObjectId as a string
+
 
 
 
