@@ -37,17 +37,30 @@ def create_user():
     """Endpoint for creating a user."""
     try:
         body = request.get_json()
-        if not all(key in body for key in ['name', 'username', 'password']):
-            return jsonify({"error": "Name, username, and password are required"}), 400
-        name = body['name']
+        if not all(key in body for key in ['first_name', 'last_name', 'username', 'password']):
+            return jsonify({"error": "First name, last name, username, and password are required"}), 400
+        
         username = body['username']
+        existing_user = DB.get_user_by_username(username)
+        
+        if existing_user:
+            return jsonify({"error": "Username already exists"}), 400
+
+        first_name = body['first_name']
+        last_name = body['last_name']
         password = body['password']
         balance = body.get("balance", 0)
-        user_id = DB.insert_user(name, username, password, balance)
+        
+        user_id = DB.insert_user(first_name, last_name, username, password, balance)
         return jsonify({"message": "Registration successful", "user_id": user_id}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+
+@app.route('/register')
+def register_page():
+    return render_template('register.html')
 
 
 @app.route("/api/users/<user_id>/", methods=["GET", "DELETE"])

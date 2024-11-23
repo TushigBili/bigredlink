@@ -32,28 +32,33 @@ function login() {
 
 
 
-
 function register() {
-    const name = document.getElementById('regName').value;
+    const firstName = document.getElementById('regFirstName').value;
+    const lastName = document.getElementById('regLastName').value;
     const username = document.getElementById('regUsername').value;
     const password = document.getElementById('regPassword').value;
+    const initialBalance = parseFloat(document.getElementById('regBalance').value) || 0.00;
 
     fetch('/api/users/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({name: name, username: username, password: password})
+        body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            username: username,
+            password: password,
+            balance: initialBalance
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.error) {
             alert('Registration failed: ' + data.error);
         } else {
-            alert('Registration successful');
-            loggedInUserId = data.user_id;  // Save user_id after successful registration
-            document.getElementById('userForms').style.display = 'none';
-            document.getElementById('transactionButtons').style.display = 'block';
+            alert('Registration successful. Redirecting to login page...');
+            window.location.href = '/'; // Redirect to the login page after registration
         }
     })
     .catch(error => {
@@ -61,6 +66,8 @@ function register() {
         alert('An error occurred during registration.');
     });
 }
+
+
 
 
 function getTransactionHistory() {

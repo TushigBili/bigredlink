@@ -12,43 +12,32 @@ body {
     color: #950e0e;
 }
 
+/* User Forms Container */
 #userForms {
     width: 400px; /* Control width for a good visual spread */
     padding: 40px;
     border-radius: 10px;
-    
 }
 
+/* Form Header Styling */
 #userForms h1 {
     color: #871515; /* Accent color for fintech branding */
 }
 
+/* Form Labels */
 .form-label {
     font-weight: bold;
-    color: #871515; /* Keep labels white for visibility */
+    color: #871515; /* Accent color for labels */
 }
 
-.btn-primary {
-    background-color: #7d1313; /* Turquoise button color */
-    border: none;
-    transition: all 0.3s ease;
+/* Input Fields Styling */
+.form-control {
+    background: rgba(255, 255, 255, 0.8);
+    color: #003366;
+    border-radius: 5px;
 }
 
-.btn-primary:hover {
-    background-color: #000000; /* Slightly darker shade on hover */
-}
-
-.btn-secondary {
-    background-color: #7d1313; /* Darker secondary button */
-    border: none;
-    color: #ffffff;
-    transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-    background-color: #000000; /* Even darker for hover */
-}
-
+/* Logo Styling */
 #cft-logo {
     position: fixed;
     top: 20px;
@@ -58,14 +47,60 @@ body {
     z-index: 1000;
 }
 
-/* Input fields */
-.form-control {
-    background: rgba(255, 255, 255, 0.8);
-    color: #003366;
-    border-radius: 5px;
+/* General Button Styling */
+.btn-primary, .btn-secondary {
+    border: none;
+    transition: all 0.3s ease;
 }
 
-/* Button hover effect */
+.btn-primary {
+    background-color: #7d1313; /* Primary button color */
+}
+
+.btn-primary:hover {
+    background-color: #000000; /* Darker shade on hover */
+}
+
+.btn-secondary {
+    background-color: #7d1313; /* Secondary button color */
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background-color: #000000; /* Darker shade on hover */
+}
+
+/* Red Button Styling (for consistency across buttons) */
+.btn-red {
+    background-color: #7d1313; /* Cornell Red */
+    border: none;
+    color: #ffffff; /* White text */
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-red:hover {
+    background-color: #8b0000; /* Darker shade of red on hover */
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Dashboard Button Styling */
+#transactionButtons .btn {
+    background-color: #7d1313; /* Cornell Red for all dashboard buttons */
+    border: none;
+    color: #ffffff; /* White text */
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#transactionButtons .btn:hover {
+    background-color: #8b0000; /* Darker shade of red on hover */
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Button Hover Effect */
 .btn:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
