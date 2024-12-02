@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 
 // Send Money
-exports.sendMoney = async (req, res) => {
+const sendMoney = async (req, res) => {
   try {
     const { sender_id, receiver_username, amount } = req.body;
 
@@ -20,11 +20,13 @@ exports.sendMoney = async (req, res) => {
       return res.status(400).json({ error: 'Insufficient funds' });
     }
 
-    // Update balances
+    // Update balances 
     sender.balance -= amount;
     receiver.balance += amount;
-    await sender.save();
-    await receiver.save();
+
+    // Save updated balances
+    await sender.updateOne({ balance: sender.balance });
+    await receiver.updateOne({ balance: receiver.balance });
 
     // Log transaction
     const transaction = new Transaction({
@@ -40,4 +42,50 @@ exports.sendMoney = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+// Create Transaction
+const createTransaction = async (req, res) => {
+  try {
+    const { sender_id, receiver_id, amount, message, accepted } = req.body;
+
+    const transaction = new Transaction({
+      sender_id,
+      receiver_id,
+      amount,
+      message,
+      accepted: accepted || false,
+    });
+
+    await transaction.save();
+    res.status(201).json(transaction);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get Transactions by User
+const getUserTransactions = async (req, res) => {
+  try {
+    const user_id = req.params.user_id;
+
+    const transactions = await Transaction.find({
+      $or: [{ sender_id: user_id }, { receiver_id: user_id }],
+    });
+
+    if (transactions.length === 0) {
+      return res.status(404).json({ error: 'No transactions found' });
+    }
+
+    res.status(200).json({ transactions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Correctly export all functions
+module.exports = {
+  sendMoney,
+  createTransaction,
+  getUserTransactions,
 };

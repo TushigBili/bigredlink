@@ -1,23 +1,23 @@
 // routes/users.js
+
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/userController');
+const { registerUser, loginUser, depositMoney, withdraw, getUserBalance } = require('../controllers/userController');
 
 const router = express.Router();
 
-// Route to handle GET request for /api/users
-router.get('/', async (req, res) => {
-    try {
-      const users = await User.find(); // Fetch all users from the database
-      res.json({ users }); // Respond with the users as JSON
-    } catch (err) {
-      res.status(500).json({ error: err.message }); // Handle any errors
-    }
-});
-  
 // Register route
 router.post('/register', registerUser);
 
 // Login route
 router.post('/login', loginUser);
+
+// Deposit money route
+router.post('/deposit', depositMoney);
+
+// Withdraw money route
+router.post('/withdraw', withdraw);
+
+// Get user balance route
+router.get('/balance/:user_id', getUserBalance);
 
 module.exports = router;
