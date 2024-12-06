@@ -1,29 +1,37 @@
-// src/App.js
+// Importing necessary libraries and components
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
-import Login from './components/Login';
-import Register from './components/Register';
-import Dashboard from './components/Dashboard';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Import Router, Route, and Routes for handling navigation
+import Home from './components/Home'; // Import Home component
+import Login from './components/Login'; // Import Login component
+import Register from './components/Register'; // Import Register component
+import Dashboard from './components/Dashboard'; // Import Dashboard component
 
+// Main App function component
 function App() {
+    // State to manage logged-in user information
     const [loggedInUser, setLoggedInUser] = useState({ id: null, username: '' });
 
+    // Function to handle user login and set logged-in user details
     const handleLogin = (userId, username) => {
         setLoggedInUser({ id: userId, username });
     };
 
+    // Function to handle user logout and reset logged-in user details
     const handleLogout = () => {
         setLoggedInUser({ id: null, username: '' });
     };
 
     return (
         <Router>
-            {/* Adding routes here */}
+            {/* Using Routes to define different paths in the app */}
             <Routes>
+                {/* Home Route */}
                 <Route path="/" element={<Home />} />
+                {/* Login Route */}
                 <Route path="/login" element={<Login onLogin={handleLogin} />} />
+                {/* Register Route */}
                 <Route path="/register" element={<Register />} />
+                {/* Dashboard Route - Accessible only if user is logged in */}
                 <Route
                     path="/dashboard"
                     element={
@@ -34,11 +42,12 @@ function App() {
                         )
                     }
                 />
-                {/* Wildcard route to match any undefined paths */}
+                {/* Fallback route for undefined paths */}
                 <Route path="*" element={<Home />} />
             </Routes>
         </Router>
     );
 }
 
+// Export the App component for use in other parts of the application
 export default App;
